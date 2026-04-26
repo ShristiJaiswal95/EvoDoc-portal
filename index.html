@@ -10,6 +10,49 @@
 </head>
 <body>
 
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-mark" style="width:44px;height:44px;border-radius:12px;">
+        <svg width="24" height="24" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2L15 5.5V12.5L9 16L3 12.5V5.5L9 2Z" stroke="white" stroke-width="1.5" fill="none"/>
+          <circle cx="9" cy="9" r="2" fill="white"/>
+        </svg>
+      </div>
+      <span class="logo-text" style="font-size:22px;">EvoDoc</span>
+    </div>
+    <p class="login-tagline">Healthcare made human.</p>
+    <p class="login-sub">Sign in to your portal</p>
+
+    <div id="login-error" class="login-error" style="display:none;"></div>
+
+    <div class="field" style="margin-bottom:14px;">
+      <label class="field-label">Email</label>
+      <input type="email" id="login-email" class="input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label class="field-label">Password</label>
+      <input type="password" id="login-password" class="input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+
+    <p class="login-hint">Demo accounts — click to fill:</p>
+    <div class="demo-accounts">
+      <div class="demo-chip" onclick="fillLogin('nurse@evodoc.com','nurse123')">
+        <strong>Nurse / Reception</strong><br/>nurse@evodoc.com · nurse123
+      </div>
+      <div class="demo-chip" onclick="fillLogin('doctor@evodoc.com','doctor123')">
+        <strong>Dr. Priya Nair</strong><br/>doctor@evodoc.com · doctor123
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="app" style="display:none;flex-direction:column;min-height:100vh;">
+
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="logo">
@@ -21,62 +64,41 @@
       </div>
       <span class="logo-text">EvoDoc</span>
     </div>
-
-    <div class="portal-switch">
-      <button class="switch-btn active" data-portal="nurse" onclick="switchPortal('nurse')">Nurse / Reception</button>
-      <button class="switch-btn" data-portal="doctor" onclick="switchPortal('doctor')">Doctor</button>
-    </div>
-
+    <span class="portal-label" id="portal-label"></span>
     <div class="user-chip">
-      <div class="avatar" id="topbar-avatar">RN</div>
-      <span class="user-name" id="topbar-name">Reception Desk</span>
+      <div class="avatar" id="topbar-avatar">?</div>
+      <span class="user-name" id="topbar-name"></span>
+      <button class="btn btn-secondary btn-sm" onclick="doLogout()" style="margin-left:10px;">Sign Out</button>
     </div>
   </header>
 
-  <!-- LAYOUT -->
   <div class="layout">
-
     <!-- SIDEBAR -->
     <nav class="sidebar">
-      <p class="sidebar-label" id="sidebar-label">Reception</p>
+      <p class="sidebar-label" id="sidebar-label"></p>
 
       <!-- Nurse Nav -->
-      <div id="nurse-nav">
-        <div class="nav-item active" onclick="setPage('intake')">
-          <span class="nav-icon">＋</span> Patient Intake
-        </div>
-        <div class="nav-item" onclick="setPage('appointment')">
-          <span class="nav-icon">📅</span> Book Appointment
-        </div>
-        <div class="nav-item" onclick="setPage('list')">
-          <span class="nav-icon">☰</span> Appointments
-        </div>
+      <div id="nurse-nav" style="display:none;">
+        <div class="nav-item" onclick="setPage('intake')"><span class="nav-icon">＋</span> Patient Intake</div>
+        <div class="nav-item" onclick="setPage('appointment')"><span class="nav-icon">📅</span> Book Appointment</div>
+        <div class="nav-item" onclick="setPage('list')"><span class="nav-icon">☰</span> Appointments</div>
       </div>
 
-      <!-- Doctor Nav (hidden initially) -->
+      <!-- Doctor Nav -->
       <div id="doctor-nav" style="display:none;">
-        <div class="nav-item" onclick="setPage('dashboard')">
-          <span class="nav-icon">◈</span> Dashboard
-        </div>
-        <div class="nav-item" onclick="setPage('doc-appointments')">
-          <span class="nav-icon">📅</span> Appointments
-        </div>
-        <div class="nav-item" onclick="setPage('patient-details')">
-          <span class="nav-icon">👤</span> Patient Details
-        </div>
+        <div class="nav-item" onclick="setPage('dashboard')"><span class="nav-icon">⊞</span> Dashboard</div>
+        <div class="nav-item" onclick="setPage('doc-appointments')"><span class="nav-icon">📅</span> Appointments</div>
+        <div class="nav-item" onclick="setPage('patient-details')"><span class="nav-icon">👤</span> Patient Details</div>
       </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <main class="main">
-      <h1 class="page-title" id="page-title">Patient Intake Form</h1>
+      <h1 class="page-title" id="page-title"></h1>
 
-      <!-- ===================== -->
-      <!-- PAGE: INTAKE FORM     -->
-      <!-- ===================== -->
-      <div id="page-intake" class="page active">
+      <!-- ===== NURSE: PATIENT INTAKE ===== -->
+      <div id="page-intake" class="page">
         <div class="card">
-
           <div class="section-label">Personal Information</div>
           <div class="field-grid col-2">
             <div class="field">
@@ -98,10 +120,8 @@
               <label class="field-label">Gender</label>
               <select id="gender" class="select">
                 <option value="">Select gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Non-binary</option>
-                <option>Prefer not to say</option>
+                <option>Male</option><option>Female</option>
+                <option>Non-binary</option><option>Prefer not to say</option>
               </select>
               <span class="error" id="err-gender"></span>
             </div>
@@ -131,10 +151,8 @@
               <label class="field-label">Blood Group</label>
               <select id="bloodGroup" class="select">
                 <option value="">Select blood group</option>
-                <option>A+</option><option>A-</option>
-                <option>B+</option><option>B-</option>
-                <option>AB+</option><option>AB-</option>
-                <option>O+</option><option>O-</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
               </select>
             </div>
             <div class="field">
@@ -159,12 +177,9 @@
         </div>
       </div>
 
-      <!-- ========================== -->
-      <!-- PAGE: BOOK APPOINTMENT     -->
-      <!-- ========================== -->
+      <!-- ===== NURSE: BOOK APPOINTMENT ===== -->
       <div id="page-appointment" class="page">
         <div class="card">
-
           <div class="section-label">Patient</div>
           <div id="patient-search-block">
             <input type="text" id="appt-patient-search" class="input" placeholder="Search patient by name..." oninput="searchPatients()" />
@@ -185,10 +200,10 @@
               <label class="field-label">Doctor</label>
               <select id="appt-doctor" class="select" onchange="checkDoctorAvail()">
                 <option value="">Select doctor</option>
-                <option value="1" data-avail="true">Dr. Priya Nair — Available</option>
-                <option value="2" data-avail="false">Dr. Arjun Mehta — Busy</option>
-                <option value="3" data-avail="true">Dr. Sunita Rao — Available</option>
-                <option value="4" data-avail="true">Dr. Vikram Iyer — Available</option>
+                <option value="1" data-avail="true">Dr. Priya Nair — General Medicine</option>
+                <option value="2" data-avail="false">Dr. Arjun Mehta — Cardiology</option>
+                <option value="3" data-avail="true">Dr. Sunita Rao — Pediatrics</option>
+                <option value="4" data-avail="true">Dr. Vikram Iyer — Orthopedics</option>
               </select>
               <span class="error" id="err-appt-doctor"></span>
               <span id="doctor-avail-msg" class="avail-msg"></span>
@@ -197,28 +212,23 @@
               <label class="field-label">Appointment Type</label>
               <select id="appt-type" class="select">
                 <option value="">Select type</option>
-                <option>New Patient</option>
-                <option>Follow-up</option>
-                <option>Consultation</option>
-                <option>Emergency</option>
-                <option>Routine Check-up</option>
+                <option>New Patient</option><option>Follow-up</option>
+                <option>Consultation</option><option>Emergency</option><option>Routine Check-up</option>
               </select>
               <span class="error" id="err-appt-type"></span>
             </div>
             <div class="field">
               <label class="field-label">Date</label>
-              <input type="date" id="appt-date" class="input" min="2026-04-23" />
+              <input type="date" id="appt-date" class="input" />
               <span class="error" id="err-appt-date"></span>
             </div>
             <div class="field">
               <label class="field-label">Time Slot</label>
               <select id="appt-time" class="select">
                 <option value="">Select time slot</option>
-                <option>09:00</option><option>09:30</option><option>10:00</option>
-                <option>10:30</option><option>11:00</option><option>11:30</option>
-                <option>12:00</option><option>14:00</option><option>14:30</option>
-                <option>15:00</option><option>15:30</option><option>16:00</option>
-                <option>16:30</option>
+                <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
+                <option>11:00</option><option>11:30</option><option>12:00</option><option>14:00</option>
+                <option>14:30</option><option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
               </select>
               <span class="error" id="err-appt-time"></span>
             </div>
@@ -232,26 +242,21 @@
             <p class="confirm-title">✓ Appointment Confirmed</p>
             <p class="confirm-meta" id="confirm-meta"></p>
           </div>
-
           <div class="form-actions">
             <button class="btn btn-primary" onclick="confirmBooking()"><span id="booking-btn-label">Confirm Booking</span></button>
           </div>
         </div>
       </div>
 
-      <!-- ========================== -->
-      <!-- PAGE: APPOINTMENTS LIST    -->
-      <!-- ========================== -->
+      <!-- ===== NURSE: APPOINTMENTS LIST ===== -->
       <div id="page-list" class="page">
         <div class="filter-bar">
           <input type="text" id="list-search" class="input" placeholder="Search patient..." oninput="renderList()" style="width:200px;" />
           <input type="date" id="list-date" class="input" onchange="renderList()" style="width:160px;" />
           <select id="list-doctor" class="select" onchange="renderList()" style="width:190px;">
             <option value="">All doctors</option>
-            <option value="Dr. Priya Nair">Dr. Priya Nair</option>
-            <option value="Dr. Arjun Mehta">Dr. Arjun Mehta</option>
-            <option value="Dr. Sunita Rao">Dr. Sunita Rao</option>
-            <option value="Dr. Vikram Iyer">Dr. Vikram Iyer</option>
+            <option>Dr. Priya Nair</option><option>Dr. Arjun Mehta</option>
+            <option>Dr. Sunita Rao</option><option>Dr. Vikram Iyer</option>
           </select>
           <select id="list-status" class="select" onchange="renderList()" style="width:150px;">
             <option value="">All statuses</option>
@@ -261,17 +266,12 @@
           </select>
           <button class="btn btn-secondary" onclick="clearListFilters()">Clear</button>
         </div>
-        <div class="card" style="padding:0; overflow:hidden;">
+        <div class="card" style="padding:0;overflow:hidden;">
           <table class="table">
             <thead>
               <tr>
-                <th>Patient</th>
-                <th>Doctor</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th>
+                <th>Type</th><th>Status</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="list-tbody"></tbody>
@@ -280,73 +280,19 @@
         </div>
       </div>
 
-      <!-- ========================== -->
-      <!-- PAGE: DOCTOR DASHBOARD     -->
-      <!-- ========================== -->
+      <!-- ===== DOCTOR: DASHBOARD ===== -->
       <div id="page-dashboard" class="page">
-        <div class="doc-header">
-          <div class="avatar avatar-lg">PN</div>
-          <div>
-            <p class="doc-greeting">Good morning, Dr. Priya Nair</p>
-            <p class="doc-subtitle">General Medicine · Thursday, 23 April 2026</p>
-          </div>
-        </div>
-
-        <div class="metrics-grid">
-          <div class="metric-card" style="border-top-color: #185FA5;">
-            <p class="metric-value" style="color:#185FA5;">4</p>
-            <p class="metric-label">Today's Appointments</p>
-          </div>
-          <div class="metric-card" style="border-top-color: #0F6E56;">
-            <p class="metric-value" style="color:#0F6E56;">2</p>
-            <p class="metric-label">Scheduled Today</p>
-          </div>
-          <div class="metric-card" style="border-top-color: #BA7517;">
-            <p class="metric-value" style="color:#BA7517;">5</p>
-            <p class="metric-label">This Week</p>
-          </div>
-          <div class="metric-card" style="border-top-color: #3B6D11;">
-            <p class="metric-value" style="color:#3B6D11;">47</p>
-            <p class="metric-label">Patients Seen (Month)</p>
-          </div>
-        </div>
-
+        <div class="doc-header" id="dash-header"></div>
+        <div class="metrics-grid" id="dash-metrics"></div>
         <div class="dashboard-grid">
           <div class="card">
             <p class="card-heading">Today's Schedule</p>
-            <div class="schedule-item">
-              <div class="time-badge">09:00<br/><span>Apr 23</span></div>
-              <div class="schedule-info">
-                <p class="schedule-name">Ramesh Kumar</p>
-                <p class="schedule-type">Follow-up</p>
-              </div>
-              <span class="badge badge-scheduled">scheduled</span>
-            </div>
-            <div class="schedule-item">
-              <div class="time-badge">10:30<br/><span>Apr 23</span></div>
-              <div class="schedule-info">
-                <p class="schedule-name">Lakshmi Devi</p>
-                <p class="schedule-type">Consultation</p>
-              </div>
-              <span class="badge badge-completed">completed</span>
-            </div>
+            <div id="dash-schedule"></div>
           </div>
-
           <div class="card">
-            <p class="card-heading">Notifications</p>
-            <div class="notif notif-info">
-              <p class="notif-msg">Lab results ready for Ramesh Kumar</p>
-              <p class="notif-time">2h ago</p>
-            </div>
-            <div class="notif notif-warn">
-              <p class="notif-msg">Appointment cancelled by Lakshmi Devi</p>
-              <p class="notif-time">Yesterday</p>
-            </div>
-            <div class="notif notif-success">
-              <p class="notif-msg">New patient record added</p>
-              <p class="notif-time">Today</p>
-            </div>
-            <hr class="divider" />
+            <p class="card-heading">Recent Patient Activity</p>
+            <div id="dash-activity"></div>
+            <hr class="divider" style="margin:14px 0;" />
             <p class="card-heading" style="margin-bottom:10px;">Quick Links</p>
             <div class="quick-links">
               <button class="btn btn-secondary btn-sm" onclick="setPage('doc-appointments')">My Appointments</button>
@@ -356,59 +302,117 @@
         </div>
       </div>
 
-      <!-- ============================== -->
-      <!-- PAGE: DOCTOR APPOINTMENTS      -->
-      <!-- ============================== -->
+      <!-- ===== DOCTOR: APPOINTMENTS ===== -->
       <div id="page-doc-appointments" class="page">
         <div class="filter-bar">
           <div class="tab-switch">
-            <button class="tab-btn active" data-filter="upcoming" onclick="setApptFilter('upcoming', this)">Upcoming</button>
-            <button class="tab-btn" data-filter="past" onclick="setApptFilter('past', this)">Past</button>
-            <button class="tab-btn" data-filter="all" onclick="setApptFilter('all', this)">All</button>
+            <button class="tab-btn active" onclick="setApptFilter('upcoming',this)">Upcoming</button>
+            <button class="tab-btn" onclick="setApptFilter('past',this)">Past</button>
+            <button class="tab-btn" onclick="setApptFilter('all',this)">All</button>
           </div>
           <input type="text" id="doc-appt-search" class="input" placeholder="Search patient..." oninput="renderDocAppts()" style="width:220px;" />
+          <input type="date" id="doc-appt-date" class="input" onchange="renderDocAppts()" style="width:160px;" />
         </div>
         <div id="doc-appt-list"></div>
       </div>
 
-      <!-- ============================== -->
-      <!-- PAGE: PATIENT DETAILS          -->
-      <!-- ============================== -->
+      <!-- ===== DOCTOR: PATIENT DETAILS ===== -->
       <div id="page-patient-details" class="page">
-        <div id="patient-selector-bar" class="filter-bar" style="margin-bottom:20px;">
-          <select id="patient-select" class="select" onchange="loadPatient()" style="width:240px;">
-            <option value="0">Ramesh Kumar</option>
-            <option value="1">Lakshmi Devi</option>
-            <option value="2">Arun Sharma</option>
-          </select>
+        <div class="filter-bar" style="margin-bottom:20px;">
+          <label class="field-label" style="align-self:center;white-space:nowrap;">Select Patient:</label>
+          <select id="patient-select" class="select" onchange="loadPatient()" style="width:260px;"></select>
         </div>
 
-        <div id="patient-header" class="card patient-header"></div>
+        <div id="patient-header" class="card patient-header" style="margin-bottom:20px;"></div>
 
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="setPatientTab('overview', this)">Overview</button>
-          <button class="tab-btn" onclick="setPatientTab('history', this)">History</button>
-          <button class="tab-btn" onclick="setPatientTab('notes', this)">Notes</button>
+          <button class="tab-btn active" onclick="setPatientTab('overview',this)">Overview</button>
+          <button class="tab-btn" onclick="setPatientTab('history',this)">Visit History</button>
+          <button class="tab-btn" onclick="setPatientTab('notes',this)">Clinical Notes</button>
+          <button class="tab-btn" onclick="setPatientTab('update',this)">Update Record</button>
         </div>
 
+        <!-- Tab: Overview -->
         <div id="tab-overview" class="patient-tab active"></div>
+
+        <!-- Tab: Visit History -->
         <div id="tab-history" class="patient-tab"></div>
+
+        <!-- Tab: Clinical Notes -->
         <div id="tab-notes" class="patient-tab">
           <div class="card" style="margin-bottom:16px;">
-            <p class="card-heading">Add Clinical Note</p>
-            <textarea id="new-note" class="textarea" style="width:100%;box-sizing:border-box;" placeholder="Enter clinical notes, observations..."></textarea>
-            <button class="btn btn-primary" style="margin-top:12px;" onclick="addNote()">Save Note</button>
+            <p class="card-heading">Add New Clinical Note</p>
+            <div class="field-grid col-2" style="margin-bottom:14px;">
+              <div class="field">
+                <label class="field-label">Diagnosis / Label <span class="optional">(optional)</span></label>
+                <input type="text" id="note-diagnosis" class="input" placeholder="e.g. Hypertension — stable" />
+              </div>
+              <div class="field">
+                <label class="field-label">Visit Date</label>
+                <input type="date" id="note-date" class="input" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Clinical Notes</label>
+              <textarea id="new-note" class="textarea" style="width:100%;box-sizing:border-box;min-height:100px;" placeholder="Enter observations, findings, treatment plan, follow-up instructions..."></textarea>
+            </div>
+            <button class="btn btn-primary" style="margin-top:14px;" onclick="addNote()">Save Note</button>
           </div>
-          <div class="card" id="notes-list"></div>
+          <div class="card" id="notes-list">
+            <p class="card-heading">Previous Notes</p>
+            <p style="color:#888780;font-size:14px;">Select a patient to view notes.</p>
+          </div>
         </div>
-      </div>
 
+        <!-- Tab: Update Record -->
+        <div id="tab-update" class="patient-tab">
+          <div class="card">
+            <p class="card-heading">Update Patient Record</p>
+            <p style="font-size:13px;color:#888780;margin-bottom:20px;">Edit and save changes to this patient's permanent record.</p>
+            <div class="field-grid col-2">
+              <div class="field">
+                <label class="field-label">Blood Group</label>
+                <select id="upd-bloodGroup" class="select">
+                  <option value="">Select blood group</option>
+                  <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                  <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">Known Allergies</label>
+                <input type="text" id="upd-allergies" class="input" />
+              </div>
+              <div class="field span-2">
+                <label class="field-label">Chronic Conditions</label>
+                <input type="text" id="upd-conditions" class="input" />
+              </div>
+              <div class="field span-2">
+                <label class="field-label">Current Medications</label>
+                <textarea id="upd-medications" class="textarea"></textarea>
+              </div>
+              <div class="field span-2">
+                <label class="field-label">Emergency Contact</label>
+                <input type="text" id="upd-emergency" class="input" placeholder="Name — Phone number" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="updatePatientRecord()">Save Changes</button>
+              <button class="btn btn-secondary" onclick="resetUpdateForm()">Cancel</button>
+            </div>
+            <p class="success-msg" id="update-success"></p>
+          </div>
+        </div>
+
+      </div><!-- end page-patient-details -->
     </main>
   </div>
+</div>
 
-  <!-- TOAST -->
-  <div id="toast" class="toast" style="display:none;"></div>
+<!-- TOAST -->
+<div id="toast" class="toast" style="display:none;"></div>
+<!-- MODAL -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:500;align-items:center;justify-content:center;"></div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
