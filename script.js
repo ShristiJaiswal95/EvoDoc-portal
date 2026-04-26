@@ -32,8 +32,11 @@ let VISITS = [
 // AUTH
 // ============================================================
 const ACCOUNTS = {
-  "nurse@evodoc.com":  { password: "nurse123",  role: "nurse",  name: "Reception Desk",  initials: "RN" },
-  "doctor@evodoc.com": { password: "doctor123", role: "doctor", name: "Dr. Priya Nair",  initials: "PN" }
+  "nurse@evodoc.com":  { password: "nurse123",  role: "nurse",  name: "Reception Desk",  initials: "RN", doctorId: null },
+  "priya@evodoc.com":  { password: "priya123",  role: "doctor", name: "Dr. Priya Nair",  initials: "PN", specialty: "General Medicine", doctorId: 1 },
+  "arjun@evodoc.com":  { password: "arjun123",  role: "doctor", name: "Dr. Arjun Mehta", initials: "AM", specialty: "Cardiology",       doctorId: 2 },
+  "sunita@evodoc.com": { password: "sunita123", role: "doctor", name: "Dr. Sunita Rao",  initials: "SR", specialty: "Pediatrics",       doctorId: 3 },
+  "vikram@evodoc.com": { password: "vikram123", role: "doctor", name: "Dr. Vikram Iyer", initials: "VI", specialty: "Orthopedics",      doctorId: 4 }
 };
 
 let currentUser = null;
@@ -467,19 +470,23 @@ function clearListFilters() {
 // ============================================================
 function renderDashboard() {
   const today = new Date().toISOString().split("T")[0];
-  const todayAppts  = APPOINTMENTS.filter(a => a.date === today);
-  const weekAppts   = APPOINTMENTS.filter(a => a.date >= today);
+  const myDoctorId  = currentUser ? currentUser.doctorId : null;
+  const todayAppts  = APPOINTMENTS.filter(a => a.date === today && (!myDoctorId || a.doctorId === myDoctorId));
+  const weekAppts   = APPOINTMENTS.filter(a => a.date >= today  && (!myDoctorId || a.doctorId === myDoctorId));
   const scheduled   = todayAppts.filter(a => a.status === "scheduled");
 
   // Date string
   const dateStr = new Date().toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
 
-  // Header
+  // Header — uses logged-in doctor
+  const docInitials = currentUser ? currentUser.initials : "DR";
+  const docName     = currentUser ? currentUser.name     : "Doctor";
+  const docSpec     = currentUser ? currentUser.specialty || "" : "";
   document.getElementById("dash-header").innerHTML = `
-    <div class="avatar avatar-lg" style="background:#E1F5EE;color:#085041;">PN</div>
+    <div class="avatar avatar-lg" style="background:#E1F5EE;color:#085041;">${docInitials}</div>
     <div>
-      <p class="doc-greeting">Good morning, Dr. Priya Nair</p>
-      <p class="doc-subtitle">General Medicine &nbsp;&middot;&nbsp; ${dateStr}</p>
+      <p class="doc-greeting">Good morning, ${docName}</p>
+      <p class="doc-subtitle">${docSpec}${docSpec ? " &nbsp;&middot;&nbsp; " : ""}${dateStr}</p>
     </div>`;
 
   // Metrics
@@ -545,7 +552,9 @@ function renderDocAppts() {
   const search   = (document.getElementById("doc-appt-search")?.value || "").toLowerCase();
   const dateFilter = document.getElementById("doc-appt-date")?.value || "";
 
+  const myDocId = currentUser ? currentUser.doctorId : null;
   const filtered = APPOINTMENTS.filter(a => {
+    if (myDocId && a.doctorId !== myDocId) return false;
     if (docApptFilter === "upcoming" && (a.status === "completed" || a.status === "cancelled")) return false;
     if (docApptFilter === "past"     && a.status === "scheduled") return false;
     if (search     && !a.patientName.toLowerCase().includes(search)) return false;
@@ -720,7 +729,7 @@ function addNote() {
     id:        Date.now(),
     patientId: currentPatientId,
     date:      noteDate,
-    doctor:    currentUser ? currentUser.name : "Dr. Priya Nair",
+    doctor:    currentUser ? currentUser.name : "Doctor",
     diagnosis: diagnosis,
     notes:     noteText
   });
